@@ -21,8 +21,6 @@ export DEBIAN_FRONTEND=noninteractive
 if which apt &>/dev/null && [[ -d /var/lib/dpkg && -d /etc/apt ]] ; then
     apt-get update
     apt-get install curl mtools squashfs-tools grub-pc-bin grub-efi xorriso debootstrap -y
-#    # For 17g package build
-#    apt-get install git devscripts equivs -y
 fi
 
 set -ex
@@ -85,7 +83,7 @@ chroot chroot apt-get install linux-image-liquorix-amd64 -y
 
 
 ##### Usefull stuff
-chroot chroot apt-get install kbd network-manager debootstrap -y
+chroot chroot apt-get install kbd console-data network-manager debootstrap -y
 
 ### Remove sudo (optional)
 chroot chroot apt purge sudo -y
@@ -107,13 +105,17 @@ done
 # For better compress ratio
 mksquashfs chroot filesystem.squashfs -comp xz -wildcards
 
+#### Copy kernel and initramfs (Debian/Devuan)
+cp -pf chroot/boot/initrd.img-* debjaro/boot/initrd.img
+cp -pf chroot/boot/vmlinuz-* debjaro/boot/vmlinuz
+
+
 mkdir -p debjaro/live || true
 ln -s live debjaro/casper || true
 mv filesystem.squashfs debjaro/live/filesystem.squashfs
 
-#### Copy kernel and initramfs (Debian/Devuan)
-cp -pf chroot/boot/initrd.img-* debjaro/boot/initrd.img
-cp -pf chroot/boot/vmlinuz-* debjaro/boot/vmlinuz
+### Remove initramfs file (for decrease iso size)
+rm -f chroot/boot/initrd.img-*
 
 #### Write grub.cfg
 mkdir -p debjaro/boot/grub/
