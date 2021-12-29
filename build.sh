@@ -46,10 +46,6 @@ chroot chroot apt-get install gnupg -y
 ##### Devuan only
 chroot chroot apt-get install devuan-keyring -y
 
-
-##### Usefull stuff
-chroot chroot apt-get install network-manager debootstrap -y
-
 #### Debjaro repository (optional)
 echo "deb https://debjaro.github.io/repo/stable stable main" > chroot/etc/apt/sources.list.d/debjaro.list
 curl https://debjaro.github.io/repo/stable/dists/stable/Release.key | chroot chroot apt-key add -
@@ -86,6 +82,10 @@ echo "deb http://liquorix.net/debian testing main" > chroot/etc/apt/sources.list
 chroot chroot apt-get update -y
 chroot chroot apt-get install linux-image-liquorix-amd64 -y
 #chroot chroot apt-get install linux-headers-liquorix-amd64 -y
+
+
+##### Usefull stuff
+chroot chroot apt-get install kbd network-manager debootstrap -y
 
 ### Remove sudo (optional)
 chroot chroot apt purge sudo -y
