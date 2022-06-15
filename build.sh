@@ -76,4 +76,4 @@ rm -rf grub-os/lib/modules/*/kernel/drivers/gpu grub-os/lib/modules/*/kernel/dri
 mksquashfs grub-os isowork/live/filesystem.squashfs -comp gzip
 
 #### Create iso
-grub-mkrescue grub-os -o grub-os-$(date +%s).iso
+grub-mkrescue isowork -o grub-os-$(date +%s).iso
