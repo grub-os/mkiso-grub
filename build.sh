@@ -73,7 +73,7 @@ boot
 EOF
 rm -rf grub-os/var grub-os/usr/share/locale/* grub-os/usr/share/man grub-os/boot grub-os/usr/share/help
 rm -rf grub-os/lib/modules/*/kernel/drivers/gpu grub-os/lib/modules/*/kernel/drivers/media grub-os/lib/modules/*/kernel/drivers/net
-mksquashfs grub-os isowork/live/filesystem.squashfs -comp gzip
+mksquashfs grub-os isowork/live/filesystem.squashfs -comp xz --wildcards
 
 #### Create iso
 grub-mkrescue isowork -o grub-os-$(date +%s).iso
