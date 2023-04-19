@@ -72,6 +72,7 @@ initrd /initrd
 boot
 EOF
 rm -rf grub-os/var grub-os/usr/share/locale/* grub-os/usr/share/man grub-os/boot grub-os/usr/share/help
+find grub-os/usr/lib/grub | grep gfx | xargs rm -fv
 rm -rf grub-os/lib/modules/*/kernel/drivers/gpu grub-os/lib/modules/*/kernel/drivers/media grub-os/lib/modules/*/kernel/drivers/net
 mksquashfs grub-os isowork/live/filesystem.squashfs -comp xz -wildcards
 
