@@ -25,7 +25,7 @@ fi
 set -ex
 rm -rf grub-os isowork grub-os-install.iso || true
 debootstrap --variant=minbase --arch=amd64 --no-check-gpg --no-merged-usr testing grub-os
-chroot grub-os apt install grub-pc-bin grub-efi-ia32-bin grub-efi grub-common os-prober ntfs-3g efibootmgr zstd -y
+chroot grub-os apt install grub-pc-bin grub-efi grub-common os-prober ntfs-3g efibootmgr zstd -y
 chroot grub-os apt install linux-image-amd64 --no-install-recommends live-boot -y
 rm -rf grub-os/lib/modules/*/kernel/drivers/gpu
 rm -rf grub-os/lib/modules/*/kernel/drivers/media
