@@ -25,8 +25,14 @@ fi
 set -ex
 rm -rf grub-os isowork grub-os-install.iso || true
 debootstrap --variant=minbase --arch=amd64 --no-check-gpg --no-merged-usr stable grub-os
-chroot grub-os apt install grub-pc-bin grub-efi-ia32-bin grub-efi grub-common os-prober ntfs-3g efibootmgr -y
+chroot grub-os apt install grub-pc-bin grub-efi-ia32-bin grub-efi grub-common os-prober ntfs-3g efibootmgr zstd -y
 chroot grub-os apt install linux-image-amd64 --no-install-recommends live-boot -y
+rm -rf grub-os/lib/modules/*/kernel/drivers/gpu
+rm -rf grub-os/lib/modules/*/kernel/drivers/media
+rm -rf grub-os/lib/modules/*/kernel/drivers/net
+rm -rf grub-os/lib/modules/*/kernel/sound/
+rm -rf grub-os/lib/modules/*/kernel/net/
+chroot chroot update-initramfs -u -k all
 cat > grub-os/init << EOF
 #!/bin/bash
 clear
@@ -67,13 +73,14 @@ cat grub-os/vmlinuz > isowork/linux
 cat grub-os/initrd.img > isowork/initrd
 cat > isowork/boot/grub/grub.cfg << EOF
 insmod all_video
+terminal_output console
+terminal_input console
 linux /linux init=/init boot=live quiet
 initrd /initrd
 boot
 EOF
 rm -rf grub-os/var grub-os/usr/share/locale/* grub-os/usr/share/man grub-os/boot grub-os/usr/share/help
 find grub-os/usr/lib/grub | grep gfx | xargs rm -fv
-rm -rf grub-os/lib/modules/*/kernel/drivers/gpu grub-os/lib/modules/*/kernel/drivers/media grub-os/lib/modules/*/kernel/drivers/net
 mksquashfs grub-os isowork/live/filesystem.squashfs -comp xz -wildcards
 
 #### Create iso
