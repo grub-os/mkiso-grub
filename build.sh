@@ -20,12 +20,12 @@ export DEBIAN_FRONTEND=noninteractive
 #### Install dependencies
 if which apt &>/dev/null && [[ -d /var/lib/dpkg && -d /etc/apt ]] ; then
     apt-get update
-    apt-get install curl mtools squashfs-tools grub-pc-bin grub-efi xorriso debootstrap -y
+    apt-get install curl mtools squashfs-tools grub-efi-ia32-bin grub-pc-bin grub-efi xorriso debootstrap -y
 fi
 set -ex
 rm -rf grub-os isowork grub-os-install.iso || true
 debootstrap --variant=minbase --arch=amd64 --no-check-gpg --no-merged-usr sid grub-os
-chroot grub-os apt install grub-pc-bin grub-efi grub-common os-prober ntfs-3g efibootmgr zstd -y
+chroot grub-os apt install grub-efi-ia32-bin grub-pc-bin grub-efi grub-common os-prober ntfs-3g efibootmgr zstd -y
 chroot grub-os apt install linux-image-amd64 --no-install-recommends live-boot -y
 rm -rf grub-os/lib/modules/*/kernel/drivers/gpu
 rm -rf grub-os/lib/modules/*/kernel/drivers/media
@@ -59,7 +59,8 @@ grub-install --bootloader-id=grub --boot-directory=/mnt/boot --efi-directory=/mn
 efibootmgr --create --disk /dev/\$mbr --part \${rootfs/*[a-z]/} --loader /EFI/BOOT/grubx64.efi --label "grub"
 export pkgdatadir=/usr/lib/grub
 mkdir -p /var/lib/os-prober
-bash /etc/grub.d/00_header > /mnt/boot/grub/grub.cfg
+echo "terminal_output console" > /mnt/boot/grub/grub.cfg
+bash /etc/grub.d/00_header >> /mnt/boot/grub/grub.cfg
 bash /etc/grub.d/30_os-prober >> /mnt/boot/grub/grub.cfg
 echo "menuentry exit {" >> /mnt/boot/grub/grub.cfg
 echo "    exit {" >> /mnt/boot/grub/grub.cfg
