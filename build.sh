@@ -61,7 +61,7 @@ if [[ -d /sys/firmware/efi ]] ; then
     rm -f /sys/firmware/efi/efivars/Boot[0-9]*
 fi
 mount /dev/\$rootfs /mnt
-rm -rf /mnt/boot
+rm -rf /mnt/boot/grub
 grub-install --bootloader-id=grub --boot-directory=/mnt/boot --efi-directory=/mnt --root-directory=/mnt --locales= --removable --force --compress=gz /dev/\$mbr
 if [[ -d /sys/firmware/efi ]] ; then
     efibootmgr --create --disk /dev/\$mbr --part \${rootfs/*[a-z]/} --loader /EFI/BOOT/BOOTX64.efi --label "grub"
