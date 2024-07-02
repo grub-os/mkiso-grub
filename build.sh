@@ -82,13 +82,14 @@ find . | cpio -H newc -o > ../initrd-edge
 cd ..
 mkdir -p iso/boot/grub
 cp initrd-edge iso/initrd
+gzip -9 iso/initrd
 cp vmlinuz-edge iso/linux
 cat > iso/boot/grub/grub.cfg << EOF
 insmod all_video
 terminal_output console
 terminal_input console
 linux /linux init=/init boot=live quiet
-initrd /initrd
+initrd /initrd.gz
 boot
 EOF
 grub-mkrescue iso -o ../grub-os-$(date +%s).iso
