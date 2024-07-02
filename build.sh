@@ -58,10 +58,10 @@ clear
 if [[ -d /sys/firmware/efi ]] ; then
     modprobe efivars
     mount -t efivarfs efivarfs /sys/firmware/efi/efivars
+    rm -f /sys/firmware/efi/efivars/Boot[0-9]*
 fi
 mount /dev/\$rootfs /mnt
 grub-install --bootloader-id=grub --boot-directory=/mnt/boot --efi-directory=/mnt --root-directory=/mnt --locales= --removable --force --compress=gz /dev/\$mbr
-efibootmgr --create --disk /dev/\$mbr --part \${rootfs/*[a-z]/} --loader /EFI/BOOT/grubx64.efi --label "grub"
 export pkgdatadir=/usr/share/grub/
 mkdir -p /var/lib/os-prober
 umount -lf /mnt
