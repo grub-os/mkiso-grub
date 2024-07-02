@@ -35,6 +35,9 @@ cat > ./init << EOF
 clear
 mount -t sysfs sysfs /sys
 mount -t proc proc /proc
+modprobe ext4
+modprobe vfat
+modprobe fuse
 /sbin/udevd &
 udevadm trigger -c add
 udevadm settle
@@ -52,10 +55,10 @@ while [[ ! -b /dev/\$mbr ]] ; do
     read mbr
 done
 clear
-modprobe ext4
-modprobe vfat
-modprobe efivars
-mount -t efivarfs efivarfs /sys/firmware/efi/efivars
+if [[ -d /sys/firmware/efi ]] ; then
+    modprobe efivars
+    mount -t efivarfs efivarfs /sys/firmware/efi/efivars
+fi
 mount /dev/\$rootfs /mnt
 grub-install --bootloader-id=grub --boot-directory=/mnt/boot --efi-directory=/mnt --root-directory=/mnt --locales= --removable --force --compress=gz /dev/\$mbr
 efibootmgr --create --disk /dev/\$mbr --part \${rootfs/*[a-z]/} --loader /EFI/BOOT/grubx64.efi --label "grub"
@@ -64,9 +67,6 @@ mkdir -p /var/lib/os-prober
 echo "terminal_output console" > /mnt/boot/grub/grub.cfg
 bash /etc/grub.d/00_header >> /mnt/boot/grub/grub.cfg
 bash /etc/grub.d/30_os-prober >> /mnt/boot/grub/grub.cfg
-echo "menuentry exit {" >> /mnt/boot/grub/grub.cfg
-echo "    exit {" >> /mnt/boot/grub/grub.cfg
-echo "}" >> /mnt/boot/grub/grub.cfg
 echo press any key to reoot
 read -n 1
 sync ; echo b > /proc/sysrq-trigger
