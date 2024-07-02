@@ -1,43 +1,41 @@
 #!/bin/bash
-set -e
-#### Check root
-if [[ ! $UID -eq 0 ]] ; then
-    echo -e "\033[31;1mYou must be root!\033[:0m"
-    exit 1
-fi
-#### Remove all environmental variable
-for e in $(env | sed "s/=.*//g") ; do
-    unset "$e" &>/dev/null
-done
-
-#### Set environmental variables
-export PATH=/bin:/usr/bin:/sbin:/usr/sbin
-export LANG=C
-export SHELL=/bin/bash
-export TERM=linux
-export DEBIAN_FRONTEND=noninteractive
-
-#### Install dependencies
-if which apt &>/dev/null && [[ -d /var/lib/dpkg && -d /etc/apt ]] ; then
-    apt-get update
-    apt-get install curl mtools squashfs-tools grub-efi-ia32-bin grub-pc-bin grub-efi xorriso debootstrap -y
-fi
+umask 022
 set -ex
-rm -rf grub-os isowork grub-os-install.iso || true
-debootstrap --variant=minbase --arch=amd64 --no-check-gpg --no-merged-usr sid grub-os
-chroot grub-os apt install grub-efi-ia32-bin grub-pc-bin grub-efi grub-common os-prober ntfs-3g efibootmgr zstd -y
-chroot grub-os apt install linux-image-amd64 --no-install-recommends live-boot -y
-rm -rf grub-os/lib/modules/*/kernel/drivers/gpu
-rm -rf grub-os/lib/modules/*/kernel/drivers/media
-rm -rf grub-os/lib/modules/*/kernel/drivers/net
-rm -rf grub-os/lib/modules/*/kernel/sound/
-rm -rf grub-os/lib/modules/*/kernel/net/
-chroot grub-os update-initramfs -u -k all
-cat > grub-os/init << EOF
+if [[ ! -d build ]] ; then
+    rm -rf build
+fi
+# fetch & extract rootfs
+mkdir -p build
+cd build
+uri="https://dl-cdn.alpinelinux.org/alpine/edge/releases/$(uname -m)/"
+tarball=$(wget -O - "$uri" |grep "alpine-minirootfs" | grep "tar.gz<" | \
+    sort -V | tail -n 1 | cut -f2 -d"\"")
+wget -O "$tarball" "$uri/$tarball"
+mkdir -p chroot
+cd chroot
+tar -xvf ../*$tarball
+# fix resolv.conf
+install /etc/resolv.conf ./etc/resolv.conf
+# add repositories
+cat > ./etc/apk/repositories <<EOF
+https://dl-cdn.alpinelinux.org/alpine/edge/main
+https://dl-cdn.alpinelinux.org/alpine/edge/community
+https://dl-cdn.alpinelinux.org/alpine/edge/testing
+https://dl-cdn.alpinelinux.org/alpine/latest-stable/main
+https://dl-cdn.alpinelinux.org/alpine/latest-stable/community
+EOF
+# upgrade if needed
+chroot ./ apk upgrade
+chroot ./ apk add os-prober grub-bios grub-efi bash lsblk || true
+chroot ./ apk add linux-edge linux-firmware-none || true
+chroot ./ apk add eudev || true
+cat > ./init << EOF
 #!/bin/bash
 clear
-/lib/systemd/systemd-udevd &
-udevadm trigger
+mount -t sysfs sysfs /sys
+mount -t proc proc /proc
+/sbin/udevd &
+udevadm trigger -c add
 udevadm settle
 clear
 while [[ ! -b /dev/\$rootfs ]] ; do
@@ -67,12 +65,21 @@ echo "    exit {" >> /mnt/boot/grub/grub.cfg
 echo "}" >> /mnt/boot/grub/grub.cfg
 sync ; echo b > /proc/sysrq-trigger
 EOF
-chmod +x grub-os/init
-chroot grub-os apt clean
-mkdir -p isowork/live isowork/boot/grub/
-cat grub-os/vmlinuz > isowork/linux
-cat grub-os/initrd.img > isowork/initrd
-cat > isowork/boot/grub/grub.cfg << EOF
+chmod +x ./init
+
+mv boot/vmlinuz-edge ../
+rm -rf ./lib/modules/*/kernel/drivers/gpu
+rm -rf ./lib/modules/*/kernel/drivers/media
+rm -rf ./lib/modules/*/kernel/drivers/net
+rm -rf ./lib/modules/*/kernel/sound/
+rm -rf ./lib/modules/*/kernel/net/
+rm -rf boot var
+find . | cpio -H newc -o > ../initrd-edge
+cd ..
+mkdir -p iso/boot/grub
+cp initrd-edge iso/initrd
+cp vmlinuz-edge iso/linux
+cat > iso/boot/grub/grub.cfg << EOF
 insmod all_video
 terminal_output console
 terminal_input console
@@ -80,9 +87,4 @@ linux /linux init=/init boot=live quiet
 initrd /initrd
 boot
 EOF
-rm -rf grub-os/var grub-os/usr/share/locale/* grub-os/usr/share/man grub-os/boot grub-os/usr/share/help
-find grub-os/usr/lib/grub | grep gfx | xargs rm -fv
-mksquashfs grub-os isowork/live/filesystem.squashfs -comp xz -wildcards
-
-#### Create iso
-grub-mkrescue isowork -o grub-os-$(date +%s).iso
+grub-mkrescue iso -o grub-os-$(date +%s).iso
