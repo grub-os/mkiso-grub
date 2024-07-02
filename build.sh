@@ -87,4 +87,4 @@ linux /linux init=/init boot=live quiet
 initrd /initrd
 boot
 EOF
-grub-mkrescue iso -o grub-os-$(date +%s).iso
+grub-mkrescue iso -o ../grub-os-$(date +%s).iso
