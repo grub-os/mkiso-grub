@@ -26,7 +26,7 @@ https://dl-cdn.alpinelinux.org/alpine/latest-stable/community
 EOF
 # upgrade if needed
 chroot ./ apk upgrade
-chroot ./ apk add os-prober grub grub-bios grub-efi bash lsblk efibootmgr || true
+chroot ./ apk add os-prober grub grub-mount grub-bios grub-efi bash lsblk efibootmgr || true
 chroot ./ apk add linux-edge linux-firmware-none || true
 chroot ./ apk add eudev || true
 chroot ./ apk add depmod -a || true
@@ -67,6 +67,8 @@ bash /etc/grub.d/30_os-prober >> /mnt/boot/grub/grub.cfg
 echo "menuentry exit {" >> /mnt/boot/grub/grub.cfg
 echo "    exit {" >> /mnt/boot/grub/grub.cfg
 echo "}" >> /mnt/boot/grub/grub.cfg
+echo press any key to reoot
+read -n 1
 sync ; echo b > /proc/sysrq-trigger
 EOF
 chmod +x ./init
