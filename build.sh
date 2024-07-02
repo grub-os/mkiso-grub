@@ -69,7 +69,8 @@ echo "terminal_output console" > /grub.cfg
 bash /etc/grub.d/00_header >> /grub.cfg
 bash /etc/grub.d/30_os-prober >> /grub.cfg
 mount /dev/\$rootfs /mnt
-cp /grub.cfg /mnt/boot/grub/grub.cfg
+mkdir -p /mnt/boot/grub
+cp -fv /grub.cfg /mnt/boot/grub/grub.cfg
 sync
 echo press any key to reoot
 read -n 1
