@@ -26,9 +26,10 @@ https://dl-cdn.alpinelinux.org/alpine/latest-stable/community
 EOF
 # upgrade if needed
 chroot ./ apk upgrade
-chroot ./ apk add os-prober grub-bios grub-efi bash lsblk || true
+chroot ./ apk add os-prober grub grub-bios grub-efi bash lsblk efibootmgr || true
 chroot ./ apk add linux-edge linux-firmware-none || true
 chroot ./ apk add eudev || true
+chroot ./ apk add depmod -a || true
 cat > ./init << EOF
 #!/bin/bash
 clear
@@ -37,6 +38,7 @@ mount -t proc proc /proc
 /sbin/udevd &
 udevadm trigger -c add
 udevadm settle
+mdev -s
 clear
 while [[ ! -b /dev/\$rootfs ]] ; do
     lsblk
@@ -50,6 +52,8 @@ while [[ ! -b /dev/\$mbr ]] ; do
     read mbr
 done
 clear
+modprobe ext4
+modprobe vfat
 modprobe efivars
 mount -t efivarfs efivarfs /sys/firmware/efi/efivars
 mount /dev/\$rootfs /mnt
