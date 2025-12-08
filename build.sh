@@ -36,6 +36,8 @@ clear
 mount -t sysfs sysfs /sys
 mount -t proc proc /proc
 modprobe ext4
+modprobe btrfs
+modprobe xfs
 modprobe vfat
 modprobe fuse
 /sbin/udevd &
