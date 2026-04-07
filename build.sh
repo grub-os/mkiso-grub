@@ -92,12 +92,12 @@ rm -rf ./lib/modules/*/kernel/drivers/net
 rm -rf ./lib/modules/*/kernel/sound/
 rm -rf ./lib/modules/*/kernel/net/
 rm -rf boot var
-find . | cpio -H newc -o > ../initrd-edge
+find . | cpio -H newc -o > ../initrd
 cd ..
 mkdir -p iso/boot/grub
-cp initrd-edge iso/initrd
+cp initrd iso/initrd
 gzip -9 iso/initrd
-cp vmlinuz-edge iso/linux
+cp vmlinuz-* iso/linux
 cat > iso/boot/grub/grub.cfg << EOF
 insmod all_video
 terminal_output console
