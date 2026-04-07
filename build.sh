@@ -85,7 +85,7 @@ sync ; echo _reisub > /proc/sysrq-trigger
 EOF
 chmod +x ./init
 
-mv ./boot/vmlinuz-edge ../
+mv ./boot/vmlinuz-* ../
 rm -rf ./lib/modules/*/kernel/drivers/gpu
 rm -rf ./lib/modules/*/kernel/drivers/media
 rm -rf ./lib/modules/*/kernel/drivers/net
