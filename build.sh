@@ -78,9 +78,10 @@ mount /dev/\$rootfs /mnt
 mkdir -p /mnt/boot/grub
 cp -fv /grub.cfg /mnt/boot/grub/grub.cfg
 sync
+umount -lf /mnt
 echo press any key to reoot
 read -n 1
-sync ; echo b > /proc/sysrq-trigger
+sync ; echo _reisub > /proc/sysrq-trigger
 EOF
 chmod +x ./init
 
