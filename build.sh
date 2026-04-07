@@ -26,7 +26,7 @@ https://dl-cdn.alpinelinux.org/alpine/latest-stable/community
 EOF
 # upgrade if needed
 chroot ./ apk upgrade
-chroot ./ apk add os-prober grub grub-mount grub-bios grub-efi bash lsblk efibootmgr || true
+chroot ./ apk add os-prober grub grub-mount grub-bios grub-efi kmod bash lsblk efibootmgr || true
 chroot ./ apk add linux-edge linux-firmware-none || true
 chroot ./ apk add eudev || true
 chroot ./ apk add depmod -a || true
