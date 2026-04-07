@@ -29,7 +29,7 @@ chroot ./ apk upgrade
 chroot ./ apk add os-prober grub grub-mount grub-bios grub-efi kmod bash lsblk efibootmgr || true
 chroot ./ apk add linux-edge linux-firmware-none || true
 chroot ./ apk add eudev || true
-chroot ./ apk add depmod -a || true
+chroot ./ apk add depmod || true
 cat > ./init << EOF
 #!/bin/bash
 clear
@@ -85,7 +85,7 @@ sync ; echo _reisub > /proc/sysrq-trigger
 EOF
 chmod +x ./init
 
-mv boot/vmlinuz-edge ../
+mv ./boot/vmlinuz-edge ../
 rm -rf ./lib/modules/*/kernel/drivers/gpu
 rm -rf ./lib/modules/*/kernel/drivers/media
 rm -rf ./lib/modules/*/kernel/drivers/net
